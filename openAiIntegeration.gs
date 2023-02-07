@@ -1,22 +1,27 @@
 function onOpen() {
    DocumentApp.getUi().createMenu("Auto Blog")
-    .addItem("Generate Blog", "myFunction")
+    .addItem('ブログ記事を生成', "argJa")
+    .addItem("Generate English Blog", "myFunction")
     .addToUi();
 }
-function myFunction() {
+
+function argJa(){
+  myFunction("ja")
+}
+
+function myFunction(lang) {
   var doc = DocumentApp.getActiveDocument()
   var selectedText = doc.getSelection().getRangeElements()[0].getElement().asText().getText()
   var body = doc.getBody()
 
   // Replace YOUR_API_KEY with your actual OpenAI API key
-  var apiKey = "YOUR_API_KEY";
+  var apiKey = "YOUR API KEY";
   var prompt = "Generate a detailed full length article about " + selectedText;
 
   // var model = "text-davinci-002";
-
   var model = "text-davinci-003"
   temperature= 0
-  maxTokens = 4060
+  maxTokens = 4000
 
     // Set up the request body with the given parameters
     const requestBody = {
@@ -43,12 +48,19 @@ function myFunction() {
   // Parse the response and get the generated text
   var responseText = response.getContentText();
   var json = JSON.parse(responseText);
+  var theText = json['choices'][0]['text']
+  var jpText = LanguageApp.translate(theText, 'en', 'ja')
   Logger.log(json['choices'][0]['text'])
+  Logger.log(jpText)
 
-
-
-  para = body.appendParagraph(json['choices'][0]['text'])
-
+  // set language
+  if (lang=="ja"){
+    para2 = body.appendParagraph(jpText);
+    para = body.appendParagraph(theText);
+    } else {
+    para = body.appendParagraph(theText);
+    para2 = body.appendParagraph(jpText);
+  }
 
 
   //Image Generation
